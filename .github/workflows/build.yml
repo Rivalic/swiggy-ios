@@ -35,13 +35,13 @@ jobs:
                   echo "THEOS=$HOME/theos" >> $GITHUB_ENV
                   export THEOS=$HOME/theos
 
-            - name: Generate AppIcon
-              run: |
-                  echo "Installing appicon tool..."
-                  brew install Nonchalant/appicon/appicon
-                  echo "Generating AppIcon..."
-                  # Ensure pakeplus.png exists in the root of the repo
-                  appicon pakeplus.png --output-path ./PakePlus/Assets.xcassets/AppIcon.appiconset
+            # - name: Generate AppIcon
+            #   run: |
+            #       echo "Installing appicon tool..."
+            #       brew install Nonchalant/appicon/appicon
+            #       echo "Generating AppIcon..."
+            #       # Ensure pakeplus.png exists in the root of the repo
+            #       appicon pakeplus.png --output-path ./PakePlus/Assets.xcassets/AppIcon.appiconset
 
             - name: List Files (Debug)
               run: ls -R

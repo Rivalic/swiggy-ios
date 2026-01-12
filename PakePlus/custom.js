@@ -24,4 +24,67 @@ window.open = function (url, target, features) {
     location.href = url
 }
 
+
 document.addEventListener('click', hookClick, { capture: true })
+
+    // Auto-Coupon Activation Logic
+    // Intercepts login requests and triggers offer links
+    (function () {
+        const originalFetch = window.fetch;
+        const originalXHR = window.XMLHttpRequest.prototype.open;
+        let couponsTriggered = false;
+
+        // List of offer links to activate
+        const couponLinks = [
+            'https://swiggy.onelink.me/888564224/n8t8rxdy?fbclid=IwYWRpZAGrG5o21DOmAR4IEYrf4Skt9fvr1Ve625j5yPH8OxVSdepzkPPdsfDBe4krNtRRPeZurb9LXg_wapm_vBtIGIAVTDCft3_ryv-0Dg',
+            'https://swiggy.onelink.me/888564224/zp7b090r',
+            'https://swiggy.onelink.me/888564224/2mejixk6'
+        ];
+
+        function triggerCoupons() {
+            if (couponsTriggered) return;
+            couponsTriggered = true;
+            console.log("[PakePlus] Login detected/suspected. Activating coupons...");
+
+            couponLinks.forEach(link => {
+                // Use fetch with no-cors to blindly trigger the URL
+                fetch(link, { mode: 'no-cors' })
+                    .then(() => console.log("[PakePlus] Triggered coupon: " + link))
+                    .catch(e => console.error("[PakePlus] Failed to trigger coupon: " + link, e));
+            });
+        }
+
+        // Intercept fetch
+        window.fetch = async function (...args) {
+            const response = await originalFetch.apply(this, args);
+            try {
+                const url = (args[0] instanceof Request) ? args[0].url : args[0];
+                // Detect login verification endpoints
+                // verify-otp, login, authenticate are common keywords
+                // We use 'verify' which is standard for OTP flows
+                if (url && (typeof url === 'string') && (url.includes('verify') || url.includes('login') || url.includes('authenticate'))) {
+                    if (response.ok) {
+                        triggerCoupons();
+                    }
+                }
+            } catch (e) {
+                console.error("[PakePlus] Error in fetch interceptor", e);
+            }
+            return response;
+        };
+
+        // Intercept XHR (older apps might use this)
+        window.XMLHttpRequest.prototype.open = function (method, url) {
+            this.addEventListener('load', function () {
+                try {
+                    if ((url.includes('verify') || url.includes('login') || url.includes('authenticate')) && this.status >= 200 && this.status < 300) {
+                        triggerCoupons();
+                    }
+                } catch (e) {
+                    console.error("[PakePlus] Error in XHR interceptor", e);
+                }
+            });
+            originalXHR.apply(this, arguments);
+        };
+
+    })();

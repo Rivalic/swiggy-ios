@@ -43,11 +43,18 @@ jobs:
                   # Ensure pakeplus.png exists in the root of the repo
                   appicon pakeplus.png --output-path ./PakePlus/Assets.xcassets/AppIcon.appiconset
 
+            - name: List Files (Debug)
+              run: ls -R
+
             - name: Build IPA Package
               run: |
                   export THEOS=$HOME/theos
-                  echo "Building IPA package..."
-                  make package FINALPACKAGE=1 PACKAGE_FORMAT=ipa
+                  echo "Building IPA package with signing disabled (ad-hoc)..."
+                  make package FINALPACKAGE=1 PACKAGE_FORMAT=ipa \
+                    CODE_SIGN_IDENTITY="" \
+                    CODE_SIGNING_REQUIRED=NO \
+                    CODE_SIGNING_ALLOWED=NO \
+                    AD_HOC_CODE_SIGNING_ALLOWED=YES
 
             - name: Get IPA File Path
               id: find_ipa

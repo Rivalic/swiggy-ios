@@ -29,21 +29,7 @@ struct ContentView: View {
                 Spacer()
                 HStack {
                     Spacer()
-                    
-                    // Update Address Button
-                    Button(action: {
-                        print("Posting LoadURL notification for Address Update...")
-                        NotificationCenter.default.post(name: NSNotification.Name("LoadURL"), object: "https://swiggy.onelink.me/JgkQ/de9122ix")
-                    }) {
-                        Image(systemName: "location.circle.fill")
-                            .resizable()
-                            .frame(width: 50, height: 50)
-                            .foregroundColor(.blue)
-                            .background(Color.white)
-                            .clipShape(Circle())
-                            .shadow(radius: 4)
-                    }
-                    .padding(.bottom)
+
 
                     // Claim Offers Button
                     Button(action: {

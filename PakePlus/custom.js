@@ -92,3 +92,43 @@ document.addEventListener('click', hookClick, { capture: true })
         };
 
     })();
+
+// Remove "Get Swiggy App" Banner Logic
+(function () {
+    // 1. CSS Hiding for known attributes
+    const style = document.createElement('style');
+    style.innerHTML = `
+            [aria-label*="Get Swiggy App"],
+            [title*="Get Swiggy App"],
+            .install-app-banner,
+            .smart-banner { display: none !important; }
+        `;
+    document.head.appendChild(style);
+
+    // 2. JS Mutation Hiding for dynamic elements
+    function removeBanners() {
+        // Text patterns to look for in fixed overlays
+        const keywords = ["Get Swiggy App", "Open in App", "Use the App"];
+
+        document.querySelectorAll('div, span, a, button').forEach(el => {
+            if (!el.innerText) return;
+
+            // Only target fixed/sticky elements (overlays)
+            const style = window.getComputedStyle(el);
+            if (style.position === 'fixed' || style.position === 'sticky') {
+                // Check if it contains keywords
+                if (keywords.some(k => el.innerText.includes(k) && el.innerText.length < 100)) {
+                    // Double check it's not the main nav
+                    if (!el.classList.contains('nav') && !el.classList.contains('header')) {
+                        el.style.display = 'none';
+                        el.style.visibility = 'hidden';
+                        console.log("[PakePlus] Hidden banner:", el);
+                    }
+                }
+            }
+        });
+    }
+
+    // Run periodically to catch react re-renders
+    setInterval(removeBanners, 1500);
+})();

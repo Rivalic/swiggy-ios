@@ -30,25 +30,25 @@ struct ContentView: View {
                         .ignoresSafeArea(edges: [.all])
                     
                     VStack {
-                        Spacer()
                         HStack {
-                            Spacer()
-                            // Claim Offers Button
+                            // Claim Offers Button (Top-Left)
                             Button(action: {
                                 print("Posting TriggerCoupons notification...")
                                 NotificationCenter.default.post(name: NSNotification.Name("TriggerCoupons"), object: nil)
                             }) {
                                 Image(systemName: "gift.circle.fill")
                                     .resizable()
-                                    .frame(width: 50, height: 50)
+                                    .frame(width: 40, height: 40)
                                     .foregroundColor(.green)
                                     .background(Color.white)
                                     .clipShape(Circle())
                                     .shadow(radius: 4)
+                                    .opacity(0.8)
                             }
-                            .padding(.bottom)
+                            .padding(.leading)
+                            .padding(.top)
                             
-                            // Reset Device ID Button
+                            // Reset Device ID Button (Top-Left)
                             Button(action: {
                                 WKWebsiteDataStore.default().removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), modifiedSince: Date(timeIntervalSince1970: 0)) {
                                     print("Manually cleared device ID data")
@@ -59,17 +59,21 @@ struct ContentView: View {
                             }) {
                                 Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
                                     .resizable()
-                                    .frame(width: 50, height: 50)
+                                    .frame(width: 40, height: 40)
                                     .foregroundColor(.orange)
                                     .background(Color.white)
                                     .clipShape(Circle())
                                     .shadow(radius: 4)
+                                    .opacity(0.8)
                             }
-                            .padding()
+                            .padding(.top)
                             .alert(isPresented: $showAlert) {
                                 Alert(title: Text("Device ID Reset"), message: Text("All session data has been cleared. You can now log in as a new user."), dismissButton: .default(Text("OK")))
                             }
+                            
+                            Spacer()
                         }
+                        Spacer()
                     }
                 }
             } else {

@@ -17,11 +17,6 @@ struct WebView: UIViewRepresentable {
     let userAgent = Bundle.main.object(forInfoDictionaryKey: "USERAGENT") as? String ?? ""
 
     func makeUIView(context: Context) -> WKWebView {
-        // Clear all website data to simulate new device on every launch
-        WKWebsiteDataStore.default().removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), modifiedSince: Date(timeIntervalSince1970: 0)) {
-            print("Cleared all website data for device ID rotation")
-        }
-
         let webConfiguration = WKWebViewConfiguration()
         webConfiguration.preferences.setValue(true, forKey: "allowFileAccessFromFileURLs")
         // enable developer extras

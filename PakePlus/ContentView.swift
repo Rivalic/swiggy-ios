@@ -140,14 +140,35 @@ struct ContentView: View {
         isLoading = true
         errorMessage = ""
         
-        // Remote Key Verification
-        guard let url = URL(string: "https://raw.githubusercontent.com/Rivalic/swiggy-ios/main/keys.json") else {
+        // Google Script Web App URL
+        guard let url = URL(string: "https://script.google.com/macros/s/AKfycbzQsqtvVr5y1C0BySK0bDYmVk-Hz_0aHrPv1KDOveYi0MhC3J-KCZzG8IkQF_mT07dJYw/exec") else {
             errorMessage = "Configuration Error"
             isLoading = false
             return
         }
         
-        URLSession.shared.dataTask(with: url) { data, response, error in
+        // Prepare Payload
+        let deviceId = UIDevice.current.identifierForVendor?.uuidString ?? "UnknownDevice"
+        let parameters: [String: Any] = [
+            "key": accessKey,
+            "deviceId": deviceId
+        ]
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("text/plain", forHTTPHeaderField: "Content-Type") // Apps Script prefers text/plain or application/json to handle doPost correctly with CORS sometimes, but let's try standard JSON first or handle as string in script. The script I gave parses JSON.
+        // Actually, with standard fetch in JS/Apps Script, simple POST body is easiest.
+        // let's stick to JSON body.
+        
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: [])
+        } catch {
+            errorMessage = "Failed to encode data"
+            isLoading = false
+            return
+        }
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 isLoading = false
                 
@@ -161,17 +182,27 @@ struct ContentView: View {
                     return
                 }
                 
+                // Debug response
+                if let str = String(data: data, encoding: .utf8) {
+                    print("Server Response: \(str)")
+                }
+                
                 do {
-                    let validKeys = try JSONDecoder().decode([String].self, from: data)
-                    if validKeys.contains(self.accessKey) {
-                        self.isVerified = true
-                        UserDefaults.standard.set(self.accessKey, forKey: "AccessKey")
+                    // Script returns {"status":"success"} or {"status":"error", "message":"..."}
+                    if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                        if let status = json["status"] as? String, status == "success" {
+                            self.isVerified = true
+                            UserDefaults.standard.set(self.accessKey, forKey: "AccessKey")
+                        } else {
+                            self.isVerified = false
+                            let msg = json["message"] as? String ?? "Validation Failed"
+                            self.errorMessage = msg
+                        }
                     } else {
-                        self.errorMessage = "Invalid or Revoked Key"
-                        self.isVerified = false
+                        self.errorMessage = "Invalid server response"
                     }
                 } catch {
-                    self.errorMessage = "Failed to parse key list"
+                    self.errorMessage = "Failed to parse server response"
                 }
             }
         }.resume()

@@ -100,6 +100,14 @@ struct WebView: UIViewRepresentable {
             }
         }
 
+        // Observer for loading specific URLs (e.g., Address Update)
+        NotificationCenter.default.addObserver(forName: NSNotification.Name("LoadURL"), object: nil, queue: .main) { notification in
+            if let urlString = notification.object as? String, let url = URL(string: urlString) {
+                print("Received LoadURL notification. Loading: \(urlString)")
+                webView.load(URLRequest(url: url))
+            }
+        }
+
         return webView
     }
 

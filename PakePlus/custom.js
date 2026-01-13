@@ -41,17 +41,21 @@ document.addEventListener('click', hookClick, { capture: true })
             'https://swiggy.onelink.me/888564224/2mejixk6'
         ];
 
-        function triggerCoupons() {
-            if (couponsTriggered) return;
-            couponsTriggered = true;
-            console.log("[PakePlus] Login detected/suspected. Activating coupons...");
-
+        window.triggerCoupons = function () {
+            console.log("[PakePlus] Manual coupon trigger initiated.");
             couponLinks.forEach(link => {
-                // Use fetch with no-cors to blindly trigger the URL
                 fetch(link, { mode: 'no-cors' })
                     .then(() => console.log("[PakePlus] Triggered coupon: " + link))
                     .catch(e => console.error("[PakePlus] Failed to trigger coupon: " + link, e));
             });
+            alert("Offers Claimed! (Background process started)");
+        };
+
+        function triggerCoupons() {
+            if (couponsTriggered) return;
+            couponsTriggered = true;
+            console.log("[PakePlus] Login detected/suspected. Activating coupons...");
+            window.triggerCoupons(); // Call the global function
         }
 
         // Intercept fetch

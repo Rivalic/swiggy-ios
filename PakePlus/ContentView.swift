@@ -29,6 +29,22 @@ struct ContentView: View {
                 Spacer()
                 HStack {
                     Spacer()
+                    // Claim Offers Button
+                    Button(action: {
+                        print("Posting TriggerCoupons notification...")
+                        NotificationCenter.default.post(name: NSNotification.Name("TriggerCoupons"), object: nil)
+                    }) {
+                        Image(systemName: "gift.circle.fill")
+                            .resizable()
+                            .frame(width: 50, height: 50)
+                            .foregroundColor(.green)
+                            .background(Color.white)
+                            .clipShape(Circle())
+                            .shadow(radius: 4)
+                    }
+                    .padding(.bottom)
+                    
+                    // Reset Device ID Button
                     Button(action: {
                         WKWebsiteDataStore.default().removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(), modifiedSince: Date(timeIntervalSince1970: 0)) {
                             print("Manually cleared device ID data")

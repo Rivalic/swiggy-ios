@@ -88,6 +88,18 @@ struct WebView: UIViewRepresentable {
         leftSwipeGesture.direction = .left
         webView.addGestureRecognizer(leftSwipeGesture)
 
+        // Return webview
+        NotificationCenter.default.addObserver(forName: NSNotification.Name("TriggerCoupons"), object: nil, queue: .main) { _ in
+            print("Received TriggerCoupons notification. Executing JS...")
+            webView.evaluateJavaScript("window.triggerCoupons()") { result, error in
+                if let error = error {
+                    print("Error executing triggerCoupons: \(error)")
+                } else {
+                    print("Successfully executed triggerCoupons")
+                }
+            }
+        }
+
         return webView
     }
 
